@@ -97,7 +97,40 @@ func (pa PulseAudioViewer) getVolumeInfo() (*bar.Segment, error) {
 	icon := pa.icons.Sound(isMuted, volume)
 	volumeStr := fmt.Sprintf("%.0f%% @ %s", volume*100, activeOut.CardName)
 
-	return outputs.Pango(icon, space, pango.Text(volumeStr)), nil
+	result := outputs.Pango(icon, space, pango.Text(volumeStr)).OnClick(pa.handleClick)
+	return result, nil
+}
+
+func (pa PulseAudioViewer) handleClick(evt bar.Event) {
+	if evt.Button == bar.ButtonLeft {
+		// TODO: Handle error properly.
+		_, _ = pa.cli.ToggleMute()
+		return
+	}
+
+	if evt.Button == bar.ScrollUp {
+		_ = pa.incVolume(0.01)
+		return
+	}
+
+	if evt.Button == bar.ScrollDown {
+		_ = pa.incVolume(-0.01)
+		return
+	}
+}
+
+func (pa PulseAudioViewer) incVolume(quantity float32) error {
+	currVol, err := pa.cli.Volume()
+	if err != nil {
+		return err
+	}
+
+	result := currVol + quantity
+	if result < 0 {
+		return nil
+	}
+
+	return pa.cli.SetVolume(result)
 }
 
 func (pa PulseAudioViewer) attemptVolumeRetrieval(maxAttempts int, waitTime time.Duration) error {
