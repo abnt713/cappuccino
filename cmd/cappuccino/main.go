@@ -12,6 +12,13 @@ import (
 
 func main() {
 	conf := cfg.GetConfig()
+
+	logger, err := log.NewFile(conf.LogFilePath)
+	if err != nil {
+		panic(err)
+	}
+	defer logger.Close()
+
 	icons := icons.NewTypicons(conf.TypiconsPath)
 
 	countdowns := make(pkg.Modules, 0, len(conf.Events))
@@ -25,7 +32,6 @@ func main() {
 			cappuccino.NewCountdown(evt.Name, evtTime, evt.Rate, icons),
 		)
 	}
-	logger := log.NewSTDOut()
 
 	modules := pkg.Modules{
 		cappuccino.NewNetworkManagerViewer(icons),
@@ -37,7 +43,7 @@ func main() {
 	modules = append(countdowns, modules...)
 
 	app := cappuccino.NewApp(modules)
-	err := app.Run()
+	err = app.Run()
 	if err != nil {
 		panic(err)
 	}

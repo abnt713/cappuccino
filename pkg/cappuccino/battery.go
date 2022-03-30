@@ -74,9 +74,9 @@ func pctToBatteryLevel(pct int) BatteryLevel {
 		return BatteryLevelMedium
 	}
 
-	if pct == 100 {
-		return BatteryLevelFull
+	if pct <= 90 {
+		return BatteryLevelHigh
 	}
 
-	return BatteryLevelHigh
+	return BatteryLevelFull
 }
