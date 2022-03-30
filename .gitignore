@@ -1,2 +1,7 @@
+/assets/*
 /vendor/*
 /out/*
+/local/*
+/cfg/values.go
+
+!.gitkeep

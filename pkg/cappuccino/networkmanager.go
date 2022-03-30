@@ -7,11 +7,12 @@ import (
 	"barista.run/bar"
 	"barista.run/base/value"
 	"barista.run/outputs"
+	"barista.run/pango"
 	"github.com/Wifx/gonetworkmanager"
 )
 
 // NewNetworkManagerViewer creates a new networkmanager viewer instance.
-func NewNetworkManagerViewer() NetworkManagerViewer {
+func NewNetworkManagerViewer(icons VPNIcons) NetworkManagerViewer {
 	nm, err := gonetworkmanager.NewNetworkManager()
 	if err != nil {
 		return NetworkManagerViewer{
@@ -21,12 +22,14 @@ func NewNetworkManagerViewer() NetworkManagerViewer {
 
 	return NetworkManagerViewer{
 		NetworkManager: nm,
+		icons:          icons,
 	}
 }
 
 // NetworkManagerViewer is a viewer for the networkmanager module.
 type NetworkManagerViewer struct {
 	gonetworkmanager.NetworkManager
+	icons VPNIcons
 
 	formatFunc value.Value
 }
@@ -78,15 +81,22 @@ func (nm NetworkManagerViewer) fillVPNInfo(s bar.Sink) {
 		vpns = append(vpns, vpnName)
 	}
 
-	vpnStr := "---"
-	if len(vpns) > 0 {
-		vpnStr = strings.Join(vpns, ",")
+	hasActiveVPNs := len(vpns) > 0
+	outputParts := make([]interface{}, 0, 3)
+	outputParts = append(outputParts, nm.icons.Lock(!hasActiveVPNs))
+	if hasActiveVPNs {
+		outputParts = append(outputParts, space)
+		outputParts = append(outputParts, strings.Join(vpns, ","))
 	}
-
-	s.Output(outputs.Text(vpnStr))
+	s.Output(outputs.Pango(outputParts...))
 }
 
 // GenerateBaristaModule generates a networkmanager viewer barista module.
 func (nm NetworkManagerViewer) GenerateBaristaModule() (bar.Module, error) {
 	return nm, nil
+}
+
+// VPNIcons contains all vpn related icons.
+type VPNIcons interface {
+	Lock(opened bool) *pango.Node
 }

@@ -1,0 +1,8 @@
+package cfg
+
+// GetConfig retrieves the project configuration.
+func GetConfig() Config {
+	return Config{
+		TypiconsPath: "/path/to/font/repo",
+	}
+}
