@@ -6,7 +6,8 @@ import (
 
 // Config has all settings for the bar.
 type Config struct {
-	LogFilePath  string
-	TypiconsPath string
-	Events       []cappuccino.CountdownEvent
+	LogFilePath   string                      `json:"log_file_path"`
+	TypiconsPath  string                      `json:"typicons_path"`
+	Events        []cappuccino.CountdownEvent `json:"events"`
+	BatteryLevels cappuccino.BatteryIntervals `json:"battery_levels"`
 }

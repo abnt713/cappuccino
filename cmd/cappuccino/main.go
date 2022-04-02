@@ -1,6 +1,8 @@
 package main
 
 import (
+	"fmt"
+
 	"github.com/Wifx/gonetworkmanager"
 	"github.com/abnt713/cappuccino/cfg"
 	"github.com/abnt713/cappuccino/pkg"
@@ -11,8 +13,12 @@ import (
 )
 
 func main() {
-	conf := cfg.GetConfig()
+	conf, err := cfg.ReadJSONConfig()
+	if err != nil {
+		panic(err)
+	}
 
+	fmt.Printf("%+v", conf)
 	nm, err := gonetworkmanager.NewNetworkManager()
 	if err != nil {
 		panic(err)
@@ -38,7 +44,7 @@ func main() {
 	modules := pkg.Modules{
 		cappuccino.NewVPNViewer(nm, icons, colorscheme),
 		cappuccino.NewPulseAudioViewer(logger, icons, colorscheme),
-		cappuccino.NewBatteryViewer("", icons, colorscheme),
+		cappuccino.NewBatteryViewer("", conf.BatteryLevels, icons, colorscheme),
 		cappuccino.NewClock(icons, colorscheme),
 	}
 

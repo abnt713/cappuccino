@@ -94,15 +94,30 @@ func (c Countdown) GenerateBaristaModule() (bar.Module, error) {
 
 // CountdownEvent is the event for which the clock counts towards.
 type CountdownEvent struct {
-	Name               string
-	Date               time.Time
-	IsDeadline         bool
-	UrgentWithLessThan time.Duration
+	Name               string            `json:"name"`
+	Date               time.Time         `json:"date"`
+	IsDeadline         bool              `json:"is_deadline"`
+	UrgentWithLessThan CountdownDuration `json:"urgent_with_less_than"`
+}
+
+// CountdownDuration wraps a countdown for better decoding.
+type CountdownDuration time.Duration
+
+// UnmarshalJSON customizes JSON unmarshalling process.
+func (cd *CountdownDuration) UnmarshalJSON(data []byte) error {
+	content := strings.Trim(string(data), `"`)
+	dur, err := time.ParseDuration(content)
+	if err != nil {
+		return err
+	}
+
+	*cd = CountdownDuration(dur)
+	return nil
 }
 
 // IsClose tells if the event is close.
 func (evt CountdownEvent) IsClose(remaining time.Duration) bool {
-	return remaining < evt.UrgentWithLessThan
+	return remaining < time.Duration(evt.UrgentWithLessThan)
 }
 
 // CountdownIcons contains all countdown related icons.

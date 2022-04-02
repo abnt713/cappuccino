@@ -10,9 +10,15 @@ import (
 )
 
 // NewBatteryViewer creates a new battery viewer instance.
-func NewBatteryViewer(batteryName string, icon BatteryIcons, colors BatteryColors) BatteryViewer {
+func NewBatteryViewer(
+	batteryName string,
+	intervals BatteryIntervals,
+	icon BatteryIcons,
+	colors BatteryColors,
+) BatteryViewer {
 	return BatteryViewer{
 		batteryName: batteryName,
+		intervals:   intervals,
 		icon:        icon,
 		colors:      colors,
 	}
@@ -21,6 +27,7 @@ func NewBatteryViewer(batteryName string, icon BatteryIcons, colors BatteryColor
 // BatteryViewer displays battery information
 type BatteryViewer struct {
 	batteryName string
+	intervals   BatteryIntervals
 	icon        BatteryIcons
 	colors      BatteryColors
 }
@@ -29,7 +36,7 @@ type BatteryViewer struct {
 func (ba BatteryViewer) GenerateBaristaModule() (bar.Module, error) {
 	mod := ba.getBatteryModule().Output(func(i battery.Info) bar.Output {
 		percentage := i.RemainingPct()
-		lvl := pctToBatteryLevel(percentage)
+		lvl := ba.pctToBatteryLevel(percentage)
 		isCharging := !i.Discharging()
 		batIcon := ba.icon.Battery(lvl, isCharging)
 		batColor := ba.colors.Battery(lvl, isCharging)
@@ -72,18 +79,25 @@ const (
 	BatteryLevelFull   = BatteryLevel("full")
 )
 
-func pctToBatteryLevel(pct int) BatteryLevel {
-	if pct <= 30 {
+func (ba BatteryViewer) pctToBatteryLevel(pct int) BatteryLevel {
+	if pct <= ba.intervals.Low {
 		return BatteryLevelLow
 	}
 
-	if pct <= 50 {
+	if pct <= ba.intervals.Medium {
 		return BatteryLevelMedium
 	}
 
-	if pct <= 90 {
+	if pct <= ba.intervals.High {
 		return BatteryLevelHigh
 	}
 
 	return BatteryLevelFull
+}
+
+// BatteryIntervals sets the percentage and level relationship.
+type BatteryIntervals struct {
+	Low    int `json:"low"`
+	Medium int `json:"medium"`
+	High   int `json:"high"`
 }
