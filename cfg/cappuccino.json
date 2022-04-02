@@ -1,0 +1,13 @@
+{
+	"log_file_path": "/path/to/cappucino.out",
+	"typicons_path": "/path/to/typicons.font",
+	"battery_levels": {"low": 30, "medium": 50, "high": 90},
+	"events": [
+		{
+			"name": "Cyberpunk Canon",
+			"date": "2077-01-01T00:00:00Z",
+			"is_deadline": false,
+			"urgent_with_less_than": "24h"
+		}
+	]
+}
