@@ -8,6 +8,9 @@ import (
 
 func getColors() palenightColors {
 	return palenightColors{
+
+		// A huge thank you to drewtempelmeyer for the awesome colorscheme!
+		// Colors extracted from here: https://github.com/drewtempelmeyer/palenight.vim
 		red:          fromHex("#ff5370"),
 		lightRed:     fromHex("#ff869a"),
 		darkRed:      fromHex("#BE5046"),
@@ -31,6 +34,8 @@ func getColors() palenightColors {
 		whiteMask3:   fromHex("#474b59"),
 		whiteMask11:  fromHex("#989aa2"),
 
+		// Lots of thanks to JonathanSpeek for the colors.
+		// Extracted from here: https://github.com/JonathanSpeek/palenight-iterm2
 		matBlackRegular:   fromHex("#292d3e"),
 		matBlackLight:     fromHex("#434758"),
 		matRedRegular:     fromHex("#f07178"),
