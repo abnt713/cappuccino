@@ -1,8 +1,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Wifx/gonetworkmanager"
 	"github.com/abnt713/cappuccino/cfg"
 	"github.com/abnt713/cappuccino/pkg"
@@ -18,7 +16,6 @@ func main() {
 		panic(err)
 	}
 
-	fmt.Printf("%+v", conf)
 	nm, err := gonetworkmanager.NewNetworkManager()
 	if err != nil {
 		panic(err)
