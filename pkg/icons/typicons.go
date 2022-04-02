@@ -1,6 +1,8 @@
 package icons
 
 import (
+	"time"
+
 	"barista.run/pango"
 	"barista.run/pango/icons/typicons"
 	"github.com/abnt713/cappuccino/pkg/cappuccino"
@@ -26,22 +28,20 @@ func (t Typicons) smallIcon(icon string) *pango.Node {
 }
 
 // Battery creates a battery icon.
-func (t Typicons) Battery(level cappuccino.BatteryLevel) *pango.Node {
+func (t Typicons) Battery(level cappuccino.BatteryLevel, isCharging bool) *pango.Node {
+	if isCharging {
+		return t.smallIcon("battery-charge")
+	}
 	return t.icon("battery-" + string(level))
 }
 
-// BatteryCharging creates a battery charging icon.
-func (t Typicons) BatteryCharging() *pango.Node {
-	return t.smallIcon("plug")
-}
-
 // Calendar is a calendar icon.
-func (t Typicons) Calendar() *pango.Node {
+func (t Typicons) Calendar(_ time.Time) *pango.Node {
 	return t.smallIcon("calendar")
 }
 
 // Clock is a clock icon.
-func (t Typicons) Clock() *pango.Node {
+func (t Typicons) Clock(_ time.Time) *pango.Node {
 	return t.icon("time")
 }
 
@@ -50,9 +50,9 @@ func (t Typicons) Stopwatch() *pango.Node {
 	return t.icon("stopwatch")
 }
 
-// Lock is a padlock icon.
-func (t Typicons) Lock(opened bool) *pango.Node {
-	if opened {
+// VPN is the vpn icon.
+func (t Typicons) VPN(on bool) *pango.Node {
+	if !on {
 		return t.icon("lock-open-outline")
 	}
 

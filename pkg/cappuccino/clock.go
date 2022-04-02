@@ -1,6 +1,7 @@
 package cappuccino
 
 import (
+	"image/color"
 	"time"
 
 	"barista.run/bar"
@@ -10,15 +11,17 @@ import (
 )
 
 // NewClock creates a new clock.
-func NewClock(icons ClockIcons) Clock {
+func NewClock(icons ClockIcons, colors ClockColors) Clock {
 	return Clock{
-		icons: icons,
+		icons:  icons,
+		colors: colors,
 	}
 }
 
 // Clock is the statusbar clock.
 type Clock struct {
-	icons ClockIcons
+	icons  ClockIcons
+	colors ClockColors
 }
 
 // GenerateBaristaModule generates the clock barista module.
@@ -28,14 +31,23 @@ func (cl Clock) GenerateBaristaModule() (bar.Module, error) {
 		func(now time.Time) bar.Output {
 			date := now.Format("Mon Jan 2")
 			time := now.Format("15:04:05")
-			return outputs.Pango(
-				cl.icons.Calendar(),
+
+			calendarNode := pango.New(
+				cl.icons.Calendar(now),
 				space,
 				pango.Text(date),
-				space,
-				cl.icons.Clock(),
+			).Color(cl.colors.Calendar(now))
+
+			clockNode := pango.New(
+				cl.icons.Clock(now),
 				space,
 				pango.Text(time),
+			).Color(cl.colors.Clock(now))
+
+			return outputs.Pango(
+				calendarNode,
+				space,
+				clockNode,
 			)
 		},
 	)
@@ -45,6 +57,12 @@ func (cl Clock) GenerateBaristaModule() (bar.Module, error) {
 
 // ClockIcons contains all icons related to time.
 type ClockIcons interface {
-	Calendar() *pango.Node
-	Clock() *pango.Node
+	Calendar(time.Time) *pango.Node
+	Clock(time.Time) *pango.Node
+}
+
+// ClockColors defines the clock colorscheme.
+type ClockColors interface {
+	Calendar(time.Time) color.Color
+	Clock(time.Time) color.Color
 }

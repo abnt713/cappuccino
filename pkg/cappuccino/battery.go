@@ -1,6 +1,8 @@
 package cappuccino
 
 import (
+	"image/color"
+
 	"barista.run/bar"
 	"barista.run/modules/battery"
 	"barista.run/outputs"
@@ -8,10 +10,11 @@ import (
 )
 
 // NewBatteryViewer creates a new battery viewer instance.
-func NewBatteryViewer(batteryName string, icon BatteryIcons) BatteryViewer {
+func NewBatteryViewer(batteryName string, icon BatteryIcons, colors BatteryColors) BatteryViewer {
 	return BatteryViewer{
 		batteryName: batteryName,
 		icon:        icon,
+		colors:      colors,
 	}
 }
 
@@ -19,22 +22,23 @@ func NewBatteryViewer(batteryName string, icon BatteryIcons) BatteryViewer {
 type BatteryViewer struct {
 	batteryName string
 	icon        BatteryIcons
+	colors      BatteryColors
 }
 
 // GenerateBaristaModule generates a battery viewer barista module.
 func (ba BatteryViewer) GenerateBaristaModule() (bar.Module, error) {
 	mod := ba.getBatteryModule().Output(func(i battery.Info) bar.Output {
 		percentage := i.RemainingPct()
-		batIcon := ba.icon.Battery(pctToBatteryLevel(percentage))
-		if !i.Discharging() {
-			batIcon = ba.icon.BatteryCharging()
-		}
+		lvl := pctToBatteryLevel(percentage)
+		isCharging := !i.Discharging()
+		batIcon := ba.icon.Battery(lvl, isCharging)
+		batColor := ba.colors.Battery(lvl, isCharging)
 
 		return outputs.Pango(
 			batIcon,
 			space,
 			pango.Textf("%d%%", percentage),
-		)
+		).Color(batColor)
 	})
 	return mod, nil
 }
@@ -49,8 +53,12 @@ func (ba BatteryViewer) getBatteryModule() *battery.Module {
 
 // BatteryIcons provides the battery icons.
 type BatteryIcons interface {
-	Battery(level BatteryLevel) *pango.Node
-	BatteryCharging() *pango.Node
+	Battery(level BatteryLevel, isCharging bool) *pango.Node
+}
+
+// BatteryColors provides the battery colors.
+type BatteryColors interface {
+	Battery(level BatteryLevel, isCharging bool) color.Color
 }
 
 // BatteryLevel is a battery energy level.
@@ -58,15 +66,14 @@ type BatteryLevel string
 
 // All possible battery levels.
 const (
-	BatteryLevelLow      = "low"
-	BatteryLevelMedium   = "mid"
-	BatteryLevelHigh     = "high"
-	BatteryLevelFull     = "full"
-	BatteryLevelCharging = "charging"
+	BatteryLevelLow    = BatteryLevel("low")
+	BatteryLevelMedium = BatteryLevel("mid")
+	BatteryLevelHigh   = BatteryLevel("high")
+	BatteryLevelFull   = BatteryLevel("full")
 )
 
 func pctToBatteryLevel(pct int) BatteryLevel {
-	if pct <= 20 {
+	if pct <= 30 {
 		return BatteryLevelLow
 	}
 

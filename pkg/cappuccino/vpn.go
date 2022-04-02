@@ -2,6 +2,7 @@ package cappuccino
 
 import (
 	"fmt"
+	"image/color"
 	"strings"
 
 	"barista.run/bar"
@@ -11,25 +12,20 @@ import (
 	"github.com/Wifx/gonetworkmanager"
 )
 
-// NewNetworkManagerViewer creates a new networkmanager viewer instance.
-func NewNetworkManagerViewer(icons VPNIcons) NetworkManagerViewer {
-	nm, err := gonetworkmanager.NewNetworkManager()
-	if err != nil {
-		return NetworkManagerViewer{
-			NetworkManager: nil,
-		}
-	}
-
-	return NetworkManagerViewer{
+// NewVPNViewer creates a new vpn viewer instance.
+func NewVPNViewer(nm gonetworkmanager.NetworkManager, icons VPNIcons, colors VPNColors) VPNViewer {
+	return VPNViewer{
 		NetworkManager: nm,
 		icons:          icons,
+		colors:         colors,
 	}
 }
 
-// NetworkManagerViewer is a viewer for the networkmanager module.
-type NetworkManagerViewer struct {
+// VPNViewer is a viewer for the networkmanager module which displays vpn informations.
+type VPNViewer struct {
 	gonetworkmanager.NetworkManager
-	icons VPNIcons
+	icons  VPNIcons
+	colors VPNColors
 
 	formatFunc value.Value
 }
@@ -38,26 +34,26 @@ type NetworkManagerViewer struct {
 const DBUSTargetEvent = "org.freedesktop.NetworkManager.VPN.Connection.VpnStateChanged"
 
 // Stream receives bar sink for data streaming.
-func (nm NetworkManagerViewer) Stream(s bar.Sink) {
-	if nm.NetworkManager == nil {
+func (vv VPNViewer) Stream(s bar.Sink) {
+	if vv.NetworkManager == nil {
 		s.Error(fmt.Errorf("Failed to create client"))
 		return
 	}
 
-	nm.fillVPNInfo(s)
-	updates := nm.Subscribe()
+	vv.fillVPNInfo(s)
+	updates := vv.Subscribe()
 	for {
 		update := <-updates
 		if update.Name != DBUSTargetEvent {
 			continue
 		}
 
-		nm.fillVPNInfo(s)
+		vv.fillVPNInfo(s)
 	}
 }
 
-func (nm NetworkManagerViewer) fillVPNInfo(s bar.Sink) {
-	conns, err := nm.GetPropertyActiveConnections()
+func (vv VPNViewer) fillVPNInfo(s bar.Sink) {
+	conns, err := vv.GetPropertyActiveConnections()
 	if err != nil {
 		s.Error(err)
 		return
@@ -83,20 +79,25 @@ func (nm NetworkManagerViewer) fillVPNInfo(s bar.Sink) {
 
 	hasActiveVPNs := len(vpns) > 0
 	outputParts := make([]interface{}, 0, 3)
-	outputParts = append(outputParts, nm.icons.Lock(!hasActiveVPNs))
+	outputParts = append(outputParts, vv.icons.VPN(hasActiveVPNs))
 	if hasActiveVPNs {
 		outputParts = append(outputParts, space)
 		outputParts = append(outputParts, strings.Join(vpns, ","))
 	}
-	s.Output(outputs.Pango(outputParts...))
+	s.Output(outputs.Pango(outputParts...).Color(vv.colors.VPN(hasActiveVPNs)))
 }
 
 // GenerateBaristaModule generates a networkmanager viewer barista module.
-func (nm NetworkManagerViewer) GenerateBaristaModule() (bar.Module, error) {
-	return nm, nil
+func (vv VPNViewer) GenerateBaristaModule() (bar.Module, error) {
+	return vv, nil
 }
 
 // VPNIcons contains all vpn related icons.
 type VPNIcons interface {
-	Lock(opened bool) *pango.Node
+	VPN(on bool) *pango.Node
+}
+
+// VPNColors provides all vpn related colors.
+type VPNColors interface {
+	VPN(on bool) color.Color
 }

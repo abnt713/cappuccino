@@ -1,17 +1,12 @@
 package cfg
 
-import "time"
+import (
+	"github.com/abnt713/cappuccino/pkg/cappuccino"
+)
 
 // Config has all settings for the bar.
 type Config struct {
 	LogFilePath  string
 	TypiconsPath string
-	Events       []Event
-}
-
-// Event is an event worth remembering.
-type Event struct {
-	Name string
-	Date string
-	Rate time.Duration
+	Events       []cappuccino.CountdownEvent
 }

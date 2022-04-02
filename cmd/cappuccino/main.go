@@ -1,11 +1,11 @@
 package main
 
 import (
-	"time"
-
+	"github.com/Wifx/gonetworkmanager"
 	"github.com/abnt713/cappuccino/cfg"
 	"github.com/abnt713/cappuccino/pkg"
 	"github.com/abnt713/cappuccino/pkg/cappuccino"
+	"github.com/abnt713/cappuccino/pkg/colorschemes/palenight"
 	"github.com/abnt713/cappuccino/pkg/icons"
 	"github.com/abnt713/cappuccino/pkg/log"
 )
@@ -13,31 +13,33 @@ import (
 func main() {
 	conf := cfg.GetConfig()
 
+	nm, err := gonetworkmanager.NewNetworkManager()
+	if err != nil {
+		panic(err)
+	}
+
 	logger, err := log.NewFile(conf.LogFilePath)
 	if err != nil {
 		panic(err)
 	}
 	defer logger.Close()
 
-	icons := icons.NewTypicons(conf.TypiconsPath)
+	icons := icons.NewTypicons4Dudes(icons.NewTypicons(conf.TypiconsPath))
+	colorscheme := palenight.New()
 
 	countdowns := make(pkg.Modules, 0, len(conf.Events))
 	for _, evt := range conf.Events {
-		evtTime, err := time.Parse(time.RFC3339, evt.Date)
-		if err != nil {
-			panic(err)
-		}
 		countdowns = append(
 			countdowns,
-			cappuccino.NewCountdown(evt.Name, evtTime, evt.Rate, icons),
+			cappuccino.NewCountdown(evt, icons, colorscheme),
 		)
 	}
 
 	modules := pkg.Modules{
-		cappuccino.NewNetworkManagerViewer(icons),
-		cappuccino.NewPulseAudioViewer(logger, icons),
-		cappuccino.NewBatteryViewer("", icons),
-		cappuccino.NewClock(icons),
+		cappuccino.NewVPNViewer(nm, icons, colorscheme),
+		cappuccino.NewPulseAudioViewer(logger, icons, colorscheme),
+		cappuccino.NewBatteryViewer("", icons, colorscheme),
+		cappuccino.NewClock(icons, colorscheme),
 	}
 
 	modules = append(countdowns, modules...)

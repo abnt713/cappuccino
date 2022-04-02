@@ -2,6 +2,7 @@ package cappuccino
 
 import (
 	"fmt"
+	"image/color"
 	"time"
 
 	"barista.run/bar"
@@ -12,8 +13,8 @@ import (
 )
 
 // NewPulseAudioViewer returns a new pulseaudio viewer instance.
-func NewPulseAudioViewer(logger Logger, icons PulseAudioIcons) PulseAudioViewer {
-	pv := PulseAudioViewer{logger: logger, icons: icons}
+func NewPulseAudioViewer(logger Logger, icons PulseAudioIcons, colors PulseAudioColors) PulseAudioViewer {
+	pv := PulseAudioViewer{logger: logger, icons: icons, colors: colors}
 	pv.formatFunc.Set(func(in string) bar.Output {
 		return outputs.Text(in)
 	})
@@ -25,6 +26,7 @@ func NewPulseAudioViewer(logger Logger, icons PulseAudioIcons) PulseAudioViewer 
 type PulseAudioViewer struct {
 	logger Logger
 	icons  PulseAudioIcons
+	colors PulseAudioColors
 
 	cli        *pulseaudio.Client
 	formatFunc value.Value
@@ -97,7 +99,10 @@ func (pa PulseAudioViewer) getVolumeInfo() (*bar.Segment, error) {
 	icon := pa.icons.Sound(isMuted, volume)
 	volumeStr := fmt.Sprintf("%.0f%% @ %s", volume*100, activeOut.CardName)
 
-	result := outputs.Pango(icon, space, pango.Text(volumeStr)).OnClick(pa.handleClick)
+	result := outputs.Pango(icon, space, pango.Text(volumeStr)).
+		Color(pa.colors.Sound(isMuted, volume)).
+		OnClick(pa.handleClick)
+
 	return result, nil
 }
 
@@ -158,4 +163,9 @@ type Logger interface {
 // PulseAudioIcons contains all pulseaudio related icons.
 type PulseAudioIcons interface {
 	Sound(muted bool, intensity float32) *pango.Node
+}
+
+// PulseAudioColors contains all pulseaudio related colors.
+type PulseAudioColors interface {
+	Sound(muted bool, intensity float32) color.Color
 }
