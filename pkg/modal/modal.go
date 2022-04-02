@@ -18,7 +18,7 @@ type Modal struct {
 	modalCtrl    modal.Controller
 }
 
-//GenerateBaristaModule generates the barista modal.
+// GenerateBaristaModule generates the barista modal.
 func (mo *Modal) GenerateBaristaModule() (bar.Module, error) {
 	var mod bar.Module
 	mod, mo.modalCtrl = mo.baristaModal.Build()
