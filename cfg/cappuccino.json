@@ -9,5 +9,9 @@
 			"is_deadline": false,
 			"urgent_with_less_than": "24h"
 		}
-	]
+	],
+  "github": {
+    "token": "",
+    "ignore_read": true
+  }
 }

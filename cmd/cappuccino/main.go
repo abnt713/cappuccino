@@ -39,6 +39,7 @@ func main() {
 	}
 
 	modules := pkg.Modules{
+		cappuccino.NewGithubViewer(conf.Github.Token, conf.Github.IgnoreRead, icons, colorscheme),
 		cappuccino.NewVPNViewer(nm, icons, colorscheme),
 		cappuccino.NewPulseAudioViewer(logger, icons, colorscheme),
 		cappuccino.NewBatteryViewer("", conf.BatteryLevels, icons, colorscheme),

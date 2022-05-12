@@ -10,4 +10,8 @@ type Config struct {
 	TypiconsPath  string                      `json:"typicons_path"`
 	Events        []cappuccino.CountdownEvent `json:"events"`
 	BatteryLevels cappuccino.BatteryIntervals `json:"battery_levels"`
+	Github        struct {
+		Token      string `json:"token"`
+		IgnoreRead bool   `json:"ignore_read"`
+	} `json:"github"`
 }
