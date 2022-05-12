@@ -27,6 +27,10 @@ func (t Typicons) smallIcon(icon string) *pango.Node {
 	return pango.Icon("typecn-" + icon).Size(t.fontSize - 2)
 }
 
+func (t Typicons) largeIcon(icon string) *pango.Node {
+	return pango.Icon("typecn-" + icon).Size(t.fontSize + 2)
+}
+
 // Battery creates a battery icon.
 func (t Typicons) Battery(level cappuccino.BatteryLevel, isCharging bool) *pango.Node {
 	if isCharging {
@@ -43,6 +47,11 @@ func (t Typicons) Calendar(_ time.Time) *pango.Node {
 // Clock is a clock icon.
 func (t Typicons) Clock(_ time.Time) *pango.Node {
 	return t.icon("time")
+}
+
+// Github is the github icon.
+func (t Typicons) Github() *pango.Node {
+	return t.largeIcon("social-github")
 }
 
 // Stopwatch is a stopwatch icon.

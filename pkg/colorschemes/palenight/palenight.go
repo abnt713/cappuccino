@@ -96,3 +96,8 @@ func (p Palenight) Stopwatch(
 
 	return p.colors.lightRed
 }
+
+// Github is the color of the github viewer.
+func (p Palenight) Github() color.Color {
+	return p.colors.cyan
+}
